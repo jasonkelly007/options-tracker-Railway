@@ -11,7 +11,7 @@ builder.Services.AddSwaggerGen();
 
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var isPostgres = connectionString?.StartsWith("postgres", StringComparison.OrdinalIgnoreCase) ?? false;
+var isPostgres = (connectionString?.StartsWith("postgres", StringComparison.OrdinalIgnoreCase) ?? false) || (connectionString?.Contains("Host=") ?? false);
 var useSqlite = connectionString?.Contains("Data Source=") ?? false;
 
 if (isPostgres)
