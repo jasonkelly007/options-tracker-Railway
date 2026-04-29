@@ -40,16 +40,9 @@ builder.Services.AddScoped<ICsvImportService, CsvImportService>();
 // CORS for React frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
-        var origins = new List<string> { "http://localhost:3000", "http://localhost:5173" };
-        if (!string.IsNullOrEmpty(frontendUrl))
-        {
-            origins.Add(frontendUrl);
-        }
-        
-        policy.SetIsOriginAllowed(_ => true)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -73,7 +66,7 @@ if (app.Environment.IsDevelopment())
 
 
 
-app.UseCors("AllowReactApp");
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
