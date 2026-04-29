@@ -11,9 +11,15 @@ builder.Services.AddSwaggerGen();
 
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var isPostgres = connectionString?.StartsWith("postgres", StringComparison.OrdinalIgnoreCase) ?? false;
 var useSqlite = connectionString?.Contains("Data Source=") ?? false;
 
-if (useSqlite)
+if (isPostgres)
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else if (useSqlite)
 {
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite(connectionString));
@@ -34,7 +40,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+        var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
+        var origins = new List<string> { "http://localhost:3000", "http://localhost:5173" };
+        if (!string.IsNullOrEmpty(frontendUrl))
+        {
+            origins.Add(frontendUrl);
+        }
+        
+        policy.WithOrigins(origins.ToArray())
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

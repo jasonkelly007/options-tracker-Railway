@@ -12,7 +12,8 @@ RUN npm ci
 COPY . .
 
 # Set build-time environment variable
-ENV VITE_API_URL=http://localhost:5000/api
+ARG VITE_API_URL=http://localhost:5000/api
+ENV VITE_API_URL=$VITE_API_URL
 
 # Build the app
 RUN npm run build
