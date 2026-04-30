@@ -21,6 +21,27 @@ const apiClient = axios.create({
   },
 });
 
+// Add a request interceptor to include the password header
+apiClient.interceptors.request.use((config) => {
+  const password = localStorage.getItem('app_password');
+  if (password) {
+    config.headers['X-App-Password'] = password;
+  }
+  return config;
+});
+
+// Add a response interceptor to handle 401 errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('app_password');
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Positions API
 export const positionsApi = {
   getAll: (account?: string) => 

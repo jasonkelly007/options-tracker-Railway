@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Positions from './pages/Positions';
@@ -6,8 +7,19 @@ import Options from './pages/Options';
 import AddCoveredCall from './pages/AddCoveredCall';
 import AddCashSecuredPut from './pages/AddCashSecuredPut';
 import Import from './pages/Import';
+import Login from './components/Login';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('app_password'));
+
+  const handleLogin = (password: string) => {
+    localStorage.setItem('app_password', password);
+    setIsAuthenticated(true);
+  };
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
@@ -25,6 +37,17 @@ function App() {
                   <NavLink to="/options">Options</NavLink>
                   <NavLink to="/import">Import</NavLink>
                 </div>
+              </div>
+              <div className="flex items-center">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('app_password');
+                    window.location.reload();
+                  }}
+                  className="ml-4 px-3 py-1 border border-transparent text-sm font-medium rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
               </div>
             </div>
           </div>

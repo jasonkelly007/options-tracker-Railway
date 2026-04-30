@@ -82,6 +82,35 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
+// Simple Password Protection Middleware
+app.Use(async (context, next) =>
+{
+    var appPassword = Environment.GetEnvironmentVariable("APP_PASSWORD");
+    
+    // If no password is set in env, skip protection
+    if (string.IsNullOrEmpty(appPassword))
+    {
+        await next();
+        return;
+    }
+
+    // Allow health check and CORS preflight without password
+    if (context.Request.Path.Value == "/health" || context.Request.Method == "OPTIONS")
+    {
+        await next();
+        return;
+    }
+
+    if (!context.Request.Headers.TryGetValue("X-App-Password", out var extractedPassword) || extractedPassword != appPassword)
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Unauthorized");
+        return;
+    }
+
+    await next();
+});
+
 app.UseAuthorization();
 
 app.MapGet("/health", () => "OK");

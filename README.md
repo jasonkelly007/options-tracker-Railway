@@ -69,11 +69,13 @@ This version is pre-configured for one-click deployment on **Railway** using Pos
 #### Backend Service:
 - `FRONTEND_URL`: `https://your-frontend-domain.up.railway.app`
 - `PORT`: `80` (Standard)
+- `APP_PASSWORD`: Set any password here to protect your application. If this is empty, authentication will be disabled.
 
 #### Frontend Service:
 - `VITE_API_URL`: `https://your-backend-domain.up.railway.app/api` (Ensure `/api` is at the end!)
 
-### 3. Critical Fixes Included
+### 3. Critical Fixes & Security
+- **Simple Authentication**: If you set `APP_PASSWORD`, the app will require a login screen.
 - **Postgres DateTime Fix**: Pre-configured with legacy timestamp behavior to prevent Npgsql save errors.
 - **Dynamic Port Binding**: Automatically binds to Railway's assigned port to prevent 502 Bad Gateway errors.
 - **CORS Preflight Fix**: Optimized for reverse proxies to ensure secure cross-origin communication.
