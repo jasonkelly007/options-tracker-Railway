@@ -40,11 +40,16 @@ builder.Services.AddScoped<ICsvImportService, CsvImportService>();
 // CORS for React frontend
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "https://options-tracker-production.up.railway.app",
+                "http://localhost:3000", 
+                "http://localhost:5173"
+              )
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -66,7 +71,7 @@ if (app.Environment.IsDevelopment())
 
 
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
