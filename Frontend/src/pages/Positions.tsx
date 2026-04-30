@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { positionsApi } from '../api/client';
 import type { Position } from '../types';
-import { formatCurrency, formatPercent } from '../utils/formatters';
-import { Link } from 'react-router-dom';
+import PositionCard from '../components/PositionCard';
 
 export default function Positions() {
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadPositions();
@@ -18,87 +17,64 @@ export default function Positions() {
       setLoading(true);
       const response = await positionsApi.getAll();
       setPositions(response.data);
-      setError(null);
     } catch (err) {
-      setError('Failed to load positions');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const totalMarketValue = positions.reduce((sum, p) => sum + p.marketValue, 0);
-  const totalUnrealizedPnL = positions.reduce((sum, p) => sum + p.unrealizedPnL, 0);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading positions...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Stock Positions</h1>
+    <div className="space-y-6 pb-20">
+      <div className="flex justify-between items-center px-2">
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Stock Positions</h1>
         <Link
           to="/positions/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="p-3 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-100 active:scale-95 transition-transform"
         >
-          Add Position
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
         </Link>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {positions.map((position) => (
+            <PositionCard
+              key={position.id}
+              symbol={position.symbol}
+              type="Stock"
+              details={{
+                quantity: position.quantity,
+                avgCost: position.averageCost,
+                currentPrice: position.currentPrice
+              }}
+              pnl={position.unrealizedPnL}
+              pnlPercent={position.unrealizedPnLPercent}
+              actions={
+                <Link 
+                  to={`/covered-calls/new?positionId=${position.id}`}
+                  className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg"
+                >
+                  Sell CC
+                </Link>
+              }
+            />
+          ))}
+
+          {positions.length === 0 && (
+            <div className="col-span-full text-center py-20 glass-card">
+              <p className="text-slate-400 font-medium">No stock positions found</p>
+              <Link to="/positions/new" className="mt-4 inline-block text-indigo-600 font-bold">Add your first position</Link>
+            </div>
+          )}
         </div>
       )}
-
-      {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Total Positions</p>
-          <p className="text-2xl font-bold text-gray-900">{positions.length}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Total Market Value</p>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalMarketValue)}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Total Unrealized P&L</p>
-          <p className={`text-2xl font-bold ${totalUnrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(totalUnrealizedPnL)}
-          </p>
-        </div>
-      </div>
-
-      {/* Positions Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Symbol
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Shares
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Avg Cost
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Current Price
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total Cost
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Market Value
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Unrealized P&L
     </div>
   );
 }
