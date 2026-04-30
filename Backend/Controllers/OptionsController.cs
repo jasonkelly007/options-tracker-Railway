@@ -66,20 +66,6 @@ namespace OptionsTracker.Controllers
             return CreatedAtAction(nameof(GetOption), new { id = csp.Id }, csp);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<OptionsPositionDto>> CreateOption([FromBody] CreateOptionDto dto)
-        {
-            try
-            {
-                var option = await _optionsService.CreateOptionAsync(dto);
-                return CreatedAtAction(nameof(GetOption), new { id = option.Id }, option);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         [HttpPost("roll")]
         public async Task<ActionResult<RollHistoryDto>> RollOption([FromBody] RollOptionDto dto)
         {

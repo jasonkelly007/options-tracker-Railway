@@ -90,8 +90,6 @@ export interface DashboardSummary {
   totalPremiumCollected: number;
   activeCoveredCalls: number;
   activeCashSecuredPuts: number;
-  activeLongCalls: number;
-  activeLongPuts: number;
   positionsCount: number;
   topPositions: Position[];
   expiringOptions: OptionsPosition[];

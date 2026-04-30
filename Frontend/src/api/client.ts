@@ -82,18 +82,6 @@ export const optionsApi = {
   
   close: (id: number, closingPrice: number) =>
     apiClient.post(`/options/${id}/close`, { closingPrice }),
-
-  create: (data: {
-    underlyingSymbol: string;
-    optionType: string;
-    strategy: string;
-    strikePrice: number;
-    expirationDate: string;
-    contracts: number;
-    premiumPerContract: number;
-    account: string;
-    notes?: string;
-  }) => apiClient.post<OptionsPosition>('/options', data),
   
   getDashboard: (account?: string) =>
     apiClient.get<DashboardSummary>('/options/dashboard', { params: { account } }),
